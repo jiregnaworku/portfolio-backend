@@ -18,7 +18,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
-  'https://jiregnaworku.github.io/Personal-portfolio', // GitHub Pages root
+  'https://jiregnaworku.github.io', // GitHub Pages root
  // replace with deployed frontend
 ];
 
