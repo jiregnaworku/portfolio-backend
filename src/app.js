@@ -11,22 +11,26 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
-// CORS configuration - must be before other middleware
+// ==========================
+// CORS Configuration
+// ==========================
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'https://jiregnaworku.github.io/Personal-portfolio', // GitHub Pages root
+ // replace with deployed frontend
+];
+
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, etc.)
+    // allow requests with no origin (like Postman or mobile apps)
     if (!origin) return callback(null, true);
-
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://127.0.0.1:3000',
-      'https://jiregnaworku.github.io/Personal-portfolio'
-    ];
 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
+      console.warn('Blocked by CORS:', origin);
       return callback(new Error('Not allowed by CORS'), false);
     }
   },
@@ -36,23 +40,37 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
+// ==========================
+// Security & Logging
+// ==========================
 app.use(helmet());
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Serve uploaded images (local)
+// ==========================
+// Body Parser
+// ==========================
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// ==========================
+// Static Files (uploads)
+// ==========================
 app.use('/uploads', express.static(path.join(process.cwd(), 'backend', 'uploads')));
 
-// API limiter
+// ==========================
+// Rate Limiting
+// ==========================
 app.use('/api/', apiLimiter);
 
-// Routes
+// ==========================
+// API Routes
+// ==========================
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 
-// Root route
+// ==========================
+// Root & Health Check
+// ==========================
 app.get('/', (req, res) => {
   res.json({
     message: 'Backend API is running',
@@ -62,10 +80,11 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// Errors
+// ==========================
+// 404 & Error Handling
+// ==========================
 app.use(notFound);
 app.use(errorHandler);
 
