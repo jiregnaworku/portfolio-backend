@@ -33,6 +33,16 @@ app.use('/api/', apiLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Backend API is running',
+    version: '1.0.0',
+    health: '/api/health',
+    docs: 'API endpoints available at /api/*'
+  });
+});
+
 // Health
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
